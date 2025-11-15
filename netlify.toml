@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Set VITE_API_KEY in Netlify UI (Site settings → Environment variables)
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

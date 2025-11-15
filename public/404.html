@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirecting…</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <noscript>
+      <p>Redirecting… If you are not redirected, go back to the site root.</p>
+    </noscript>
+    <script>
+      (function () {
+        // For GitHub Pages project sites, first path segment is the repo name.
+        // Redirect 404s back to the site root so SPA can handle routing.
+        var parts = (window.location.pathname || '/').split('/');
+        var repo = parts.length > 1 ? parts[1] : '';
+        var base = repo ? '/' + repo + '/' : '/';
+        var target = base; // keep it simple; SPA home can recover state if needed
+        // Preserve query/hash if present
+        if (window.location.search) target += window.location.search;
+        if (window.location.hash) target += window.location.hash;
+        window.location.replace(target);
+      })();
+    </script>
+  </body>
+  </html>

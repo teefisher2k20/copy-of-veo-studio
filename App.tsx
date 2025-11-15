@@ -36,18 +36,23 @@ const App: React.FC = () => {
   // Check for API key on initial load
   useEffect(() => {
     const checkApiKey = async () => {
+      const hasViteKey = !!import.meta.env.VITE_API_KEY;
       if (window.aistudio) {
         try {
-          if (!(await window.aistudio.hasSelectedApiKey())) {
+          const hasStudioKey = await window.aistudio.hasSelectedApiKey();
+          if (!hasStudioKey && !hasViteKey) {
             setShowApiKeyDialog(true);
           }
         } catch (error) {
           console.warn(
-            'aistudio.hasSelectedApiKey check failed, assuming no key selected.',
+            'aistudio.hasSelectedApiKey check failed; falling back to VITE_API_KEY.',
             error,
           );
-          setShowApiKeyDialog(true);
+          if (!hasViteKey) setShowApiKeyDialog(true);
         }
+      } else if (!hasViteKey) {
+        // No AI Studio integration and no Vite key present
+        setShowApiKeyDialog(true);
       }
     };
     checkApiKey();
@@ -59,20 +64,27 @@ const App: React.FC = () => {
   };
 
   const handleGenerate = useCallback(async (params: GenerateVideoParams) => {
+    const hasViteKey = !!import.meta.env.VITE_API_KEY;
     if (window.aistudio) {
       try {
-        if (!(await window.aistudio.hasSelectedApiKey())) {
+        const hasStudioKey = await window.aistudio.hasSelectedApiKey();
+        if (!hasStudioKey && !hasViteKey) {
           setShowApiKeyDialog(true);
           return;
         }
       } catch (error) {
         console.warn(
-          'aistudio.hasSelectedApiKey check failed, assuming no key selected.',
+          'aistudio.hasSelectedApiKey check failed; falling back to VITE_API_KEY.',
           error,
         );
-        setShowApiKeyDialog(true);
-        return;
+        if (!hasViteKey) {
+          setShowApiKeyDialog(true);
+          return;
+        }
       }
+    } else if (!hasViteKey) {
+      setShowApiKeyDialog(true);
+      return;
     }
 
     setAppState(AppState.LOADING);
@@ -128,7 +140,7 @@ const App: React.FC = () => {
 
   const handleApiKeyDialogContinue = async () => {
     setShowApiKeyDialog(false);
-    if (window.aistudio) {
+    if (window.aistudio && !import.meta.env.VITE_API_KEY) {
       await window.aistudio.openSelectKey();
     }
     if (appState === AppState.ERROR && lastConfig) {

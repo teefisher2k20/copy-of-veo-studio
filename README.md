@@ -15,7 +15,33 @@ View your app in AI Studio: https://ai.studio/apps/drive/1D95Df6Q58CKykSg7296jje
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+2. Set `VITE_API_KEY` in [.env.local](.env.local) to your Google AI API key
 3. Run the app:
    `npm run dev`
 # copy-of-veo-studio
+
+## Production build and CI/CD
+
+- Build locally:
+
+```bash
+npm ci
+VITE_API_KEY=YOUR_GOOGLE_API_KEY npm run build
+npm run preview
+```
+
+- Notes:
+   - `VITE_API_KEY` is embedded at build time and will be visible in the client bundle. For production security, prefer using Google AI Studio key selection in an embedded context, or proxy requests via a backend.
+   - In CI (e.g., GitHub Actions, Vercel, Netlify), set an environment variable named `VITE_API_KEY` and run `npm ci && npm run build`.
+   - Static hosting: deploy the `dist/` directory output from `npm run build`.
+
+Example (GitHub Actions job step):
+
+```yaml
+- name: Build
+   run: |
+      npm ci
+      npm run build
+   env:
+      VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
+```

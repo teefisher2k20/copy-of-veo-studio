@@ -10,14 +10,20 @@ import {
 } from '@google/genai';
 import {GenerateVideoParams, GenerationMode} from '../types';
 
-// Fix: API key is now handled by process.env.API_KEY, so it's removed from parameters.
+// API key comes from Vite at build-time: import.meta.env.VITE_API_KEY
 export const generateVideo = async (
   params: GenerateVideoParams,
 ): Promise<{objectUrl: string; blob: Blob; uri: string; video: Video}> => {
   console.log('Starting video generation with params:', params);
 
-  // Fix: API key must be obtained from process.env.API_KEY as per guidelines.
-  const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+  const API_KEY = import.meta.env.VITE_API_KEY as string | undefined;
+  if (!API_KEY) {
+    throw new Error(
+      'Missing VITE_API_KEY. Set it in .env.local or CI environment.'
+    );
+  }
+
+  const ai = new GoogleGenAI({apiKey: API_KEY});
 
   const config: any = {
     numberOfVideos: 1,
@@ -133,8 +139,8 @@ export const generateVideo = async (
     const url = decodeURIComponent(videoObject.uri);
     console.log('Fetching video from:', url);
 
-    // Fix: The API key for fetching the video must also come from process.env.API_KEY.
-    const res = await fetch(`${url}&key=${process.env.API_KEY}`);
+    // Use the same Vite-provided key when fetching the generated asset
+    const res = await fetch(`${url}&key=${API_KEY}`);
 
     if (!res.ok) {
       throw new Error(`Failed to fetch video: ${res.status} ${res.statusText}`);
