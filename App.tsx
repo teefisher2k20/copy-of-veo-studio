@@ -36,7 +36,7 @@ const App: React.FC = () => {
   // Check for API key on initial load
   useEffect(() => {
     const checkApiKey = async () => {
-      const hasViteKey = !!import.meta.env.AIzaSyDcHlBnDvHFQ-ipt2V7tY04V8sGbWOeHUQ;
+      const hasViteKey = !!import.meta.env.VITE_API_KEY;
       if (window.aistudio) {
         try {
           const hasStudioKey = await window.aistudio.hasSelectedApiKey();
