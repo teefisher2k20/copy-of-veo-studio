@@ -55,8 +55,8 @@ This starts the dev server on `http://localhost:3000` with:
 
 ### 4. Access the App
 
-- Local: http://localhost:3000
-- LAN: http://YOUR_LOCAL_IP:3000 (check terminal output)
+- Local: <http://localhost:3000>
+- LAN: <http://YOUR_LOCAL_IP:3000> (check terminal output)
 
 ## Local Storage Features
 
@@ -117,7 +117,7 @@ Set in `.env.local`:
 VITE_OFFLINE_MODE=true
 ```
 
-### Features
+### Offline Mode Features
 
 - Service worker caches static assets
 - Works without internet after first load
@@ -188,7 +188,7 @@ Creates an optimized build with development settings in `dist/`.
 npm run preview:local
 ```
 
-Serves the built app on http://localhost:4173.
+Serves the built app on <http://localhost:4173>.
 
 ### Static Server (Production)
 
@@ -207,11 +207,11 @@ npx http-server dist -p 8080 --cors
 
 Using nginx (Windows):
 
-1. Download nginx: https://nginx.org/en/download.html
+1. Download nginx: <https://nginx.org/en/download.html>
 2. Extract to `C:\nginx`
 3. Copy `dist/*` to `C:\nginx\html\`
 4. Run: `nginx.exe`
-5. Access: http://localhost:80
+5. Access: <http://localhost:80>
 
 ## Database Management
 
@@ -220,6 +220,7 @@ Using nginx (Windows):
 Open Chrome DevTools → Application → IndexedDB → VeoStudioDB
 
 Three stores:
+
 - `videos` - Video metadata
 - `videoBlobs` - Video binary data
 - `history` - Generation history
@@ -283,7 +284,7 @@ console.log('API Key:', import.meta.env.VITE_API_KEY);
 
 ## File Structure
 
-```
+```text
 copy-of-veo-studio/
 ├── services/
 │   ├── geminiService.ts          # Google AI API
@@ -329,7 +330,7 @@ docker run -p 3000:3000 -v $(pwd):/app -e VITE_API_KEY=your_key veo-studio-local
 
 - Documentation: See `README.md` and `docs/DEPLOY.md`
 - Issues: Check browser console and Network tab
-- API: https://ai.google.dev/gemini-api/docs
+- API: <https://ai.google.dev/gemini-api/docs>
 
 ---
 
