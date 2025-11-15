@@ -5,6 +5,7 @@
 import {Video} from '@google/genai';
 import React, {useCallback, useEffect, useState} from 'react';
 import ApiKeyDialog from './components/ApiKeyDialog';
+import AiToolsPage from './components/AiToolsPage';
 import {CurvedArrowDownIcon} from './components/icons';
 import LoadingIndicator from './components/LoadingIndicator';
 import PromptForm from './components/PromptForm';
@@ -18,7 +19,10 @@ import {
   VideoFile,
 } from './types';
 
+type AppPage = 'video' | 'ai-tools';
+
 const App: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState<AppPage>('video');
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -28,6 +32,7 @@ const App: React.FC = () => {
   const [lastVideoObject, setLastVideoObject] = useState<Video | null>(null);
   const [lastVideoBlob, setLastVideoBlob] = useState<Blob | null>(null);
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
+  const [apiKey, setApiKey] = useState<string>(import.meta.env.VITE_API_KEY || '');
 
   // A single state to hold the initial values for the prompt form
   const [initialFormValues, setInitialFormValues] =
@@ -234,50 +239,80 @@ const App: React.FC = () => {
       {showApiKeyDialog && (
         <ApiKeyDialog onContinue={handleApiKeyDialogContinue} />
       )}
-      <header className="py-6 flex justify-center items-center px-8 relative z-10">
-        <h1 className="text-5xl font-semibold tracking-wide text-center bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-          Veo Studio
-        </h1>
+      <header className="py-6 flex justify-center items-center px-8 relative z-10 border-b border-gray-800">
+        <div className="flex items-center gap-8">
+          <h1 className="text-5xl font-semibold tracking-wide text-center bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            Veo Studio
+          </h1>
+          <nav className="flex gap-4">
+            <button
+              onClick={() => setCurrentPage('video')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                currentPage === 'video'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Video Generator
+            </button>
+            <button
+              onClick={() => setCurrentPage('ai-tools')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                currentPage === 'ai-tools'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              AI Tools ({100}+)
+            </button>
+          </nav>
+        </div>
       </header>
-      <main className="w-full max-w-4xl mx-auto flex-grow flex flex-col p-4">
-        {appState === AppState.IDLE ? (
-          <>
-            <div className="flex-grow flex items-center justify-center">
-              <div className="relative text-center">
-                <h2 className="text-3xl text-gray-600">
-                  Type in the prompt box to start
-                </h2>
-                <CurvedArrowDownIcon className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-24 h-24 text-gray-700 opacity-60" />
-              </div>
-            </div>
-            <div className="pb-4">
-              <PromptForm
-                onGenerate={handleGenerate}
-                initialValues={initialFormValues}
-              />
-            </div>
-          </>
+      <main className="w-full max-w-4xl mx-auto flex-grow flex flex-col p-4 overflow-auto">
+        {currentPage === 'ai-tools' ? (
+          <AiToolsPage apiKey={apiKey} />
         ) : (
-          <div className="flex-grow flex items-center justify-center">
-            {appState === AppState.LOADING && <LoadingIndicator />}
-            {appState === AppState.SUCCESS && videoUrl && (
-              <VideoResult
-                videoUrl={videoUrl}
-                onRetry={handleRetry}
-                onNewVideo={handleNewVideo}
-                onExtend={handleExtend}
-                canExtend={lastConfig?.resolution === Resolution.P720}
-              />
+          <>
+            {appState === AppState.IDLE ? (
+              <>
+                <div className="flex-grow flex items-center justify-center">
+                  <div className="relative text-center">
+                    <h2 className="text-3xl text-gray-600">
+                      Type in the prompt box to start
+                    </h2>
+                    <CurvedArrowDownIcon className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-24 h-24 text-gray-700 opacity-60" />
+                  </div>
+                </div>
+                <div className="pb-4">
+                  <PromptForm
+                    onGenerate={handleGenerate}
+                    initialValues={initialFormValues}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="flex-grow flex items-center justify-center">
+                {appState === AppState.LOADING && <LoadingIndicator />}
+                {appState === AppState.SUCCESS && videoUrl && (
+                  <VideoResult
+                    videoUrl={videoUrl}
+                    onRetry={handleRetry}
+                    onNewVideo={handleNewVideo}
+                    onExtend={handleExtend}
+                    canExtend={lastConfig?.resolution === Resolution.P720}
+                  />
+                )}
+                {appState === AppState.SUCCESS &&
+                  !videoUrl &&
+                  renderError(
+                    'Video generated, but URL is missing. Please try again.',
+                  )}
+                {appState === AppState.ERROR &&
+                  errorMessage &&
+                  renderError(errorMessage)}
+              </div>
             )}
-            {appState === AppState.SUCCESS &&
-              !videoUrl &&
-              renderError(
-                'Video generated, but URL is missing. Please try again.',
-              )}
-            {appState === AppState.ERROR &&
-              errorMessage &&
-              renderError(errorMessage)}
-          </div>
+          </>
         )}
       </main>
     </div>
