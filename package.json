@@ -9,7 +9,8 @@
     "build": "vite build",
     "build:local": "vite build --mode development",
     "preview": "vite preview",
-    "preview:local": "vite preview --host 0.0.0.0 --port 4173"
+    "preview:local": "vite preview --host 0.0.0.0 --port 4173",
+    "lint:md": "markdownlint '**/*.md' --config .markdownlint.json"
   },
   "dependencies": {
     "@google/genai": "^1.22.0",
