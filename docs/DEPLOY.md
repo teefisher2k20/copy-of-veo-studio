@@ -11,6 +11,15 @@ Important: `VITE_API_KEY` is embedded in the client bundle and is public. Prefer
 3. Use the provided workflow `.github/workflows/pages.yml`.
 4. Push to `main` or manually run the workflow.
 
+### Verification checklist
+
+- [ ] `Settings → Pages → Source` is set to "GitHub Actions"
+- [ ] `Settings → Secrets and variables → Actions` contains `VITE_API_KEY`
+- [ ] Workflow ran successfully (check `Actions` tab)
+- [ ] Site is live at `https://<username>.github.io/copy-of-veo-studio/`
+- [ ] SPA routing works (refresh on a deep link doesn't 404)
+- [ ] Assets load correctly (check browser console for 404s)
+
 ## Generic CI build artifact
 
 1. Add secret `VITE_API_KEY`.
@@ -42,3 +51,5 @@ npm run preview
 
 - Blank page on Pages: Ensure Pages source is set to "GitHub Actions" and the `pages.yml` ran successfully.
 - 404 on refresh: For SPAs on static hosting, enable a 404 rewrite to `index.html` (Netlify: `_redirects` with `/* /index.html 200`).
+- Assets 404 on Pages: Verify `BASE_PATH` in `.github/workflows/pages.yml` matches your repo name.
+- Workflow not running: Check branch protection rules and ensure Actions are enabled in repo settings.
