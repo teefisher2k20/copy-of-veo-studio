@@ -36,7 +36,7 @@ cp .env.development .env.local
 Edit `.env.local`:
 
 ```env
-VITE_API_KEY=YOUR_GOOGLE_AI_API_KEY
+VITE_API_KEY=AIzaSyDcHlBnDvHFQ-ipt2V7tY04V8sGbWOeHUQ
 VITE_USE_LOCAL_DB=true
 VITE_OFFLINE_MODE=true
 ```

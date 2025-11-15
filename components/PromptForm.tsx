@@ -87,6 +87,7 @@ const CustomSelect: React.FC<{
         value={value}
         onChange={onChange}
         disabled={disabled}
+        aria-label={label}
         className="w-full bg-[#1f1f1f] border border-gray-600 rounded-lg pl-10 pr-8 py-2.5 appearance-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-700/50 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed">
         {children}
       </select>
@@ -127,7 +128,7 @@ const ImageUpload: React.FC<{
       <div className="relative w-28 h-20 group">
         <img
           src={URL.createObjectURL(image.file)}
-          alt="preview"
+          alt="Selected reference"
           className="w-full h-full object-cover rounded-lg"
         />
         <button
@@ -142,20 +143,24 @@ const ImageUpload: React.FC<{
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => inputRef.current?.click()}
-      className="w-28 h-20 bg-gray-700/50 hover:bg-gray-700 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:text-white transition-colors">
-      <PlusIcon className="w-6 h-6" />
-      <span className="text-xs mt-1">{label}</span>
+    <div className="w-28 h-20">
       <input
         type="file"
         ref={inputRef}
         onChange={handleFileChange}
         accept="image/*"
-        className="hidden"
+        className="sr-only"
+        aria-label={typeof label === 'string' ? label : 'Upload image'}
       />
-    </button>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className="w-28 h-20 bg-gray-700/50 hover:bg-gray-700 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:text-white transition-colors"
+        aria-label={typeof label === 'string' ? label : 'Add image'}>
+        <PlusIcon className="w-6 h-6" />
+        <span className="text-xs mt-1">{label}</span>
+      </button>
+    </div>
   );
 };
 
@@ -199,20 +204,24 @@ const VideoUpload: React.FC<{
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => inputRef.current?.click()}
-      className="w-48 h-28 bg-gray-700/50 hover:bg-gray-700 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:text-white transition-colors text-center">
-      <PlusIcon className="w-6 h-6" />
-      <span className="text-xs mt-1 px-2">{label}</span>
+    <div className="w-48 h-28">
       <input
         type="file"
         ref={inputRef}
         onChange={handleFileChange}
         accept="video/*"
-        className="hidden"
+        className="sr-only"
+        aria-label={typeof label === 'string' ? label : 'Upload video'}
       />
-    </button>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className="w-48 h-28 bg-gray-700/50 hover:bg-gray-700 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:text-white transition-colors text-center"
+        aria-label={typeof label === 'string' ? label : 'Add video'}>
+        <PlusIcon className="w-6 h-6" />
+        <span className="text-xs mt-1 px-2">{label}</span>
+      </button>
+    </div>
   );
 };
 

@@ -20,8 +20,10 @@ class OfflineService {
   private async registerServiceWorker(): Promise<void> {
     if ('serviceWorker' in navigator && this.offlineMode) {
       try {
-        await navigator.serviceWorker.register('/sw.js');
-        console.log('Service Worker registered for offline support');
+        const registration = await navigator.serviceWorker.register('/sw.js', {
+          scope: '/'
+        });
+        console.log('Service Worker registered for offline support:', registration.scope);
       } catch (error) {
         console.warn('Service Worker registration failed:', error);
       }

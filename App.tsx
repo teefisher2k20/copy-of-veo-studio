@@ -33,6 +33,15 @@ const App: React.FC = () => {
   const [initialFormValues, setInitialFormValues] =
     useState<GenerateVideoParams | null>(null);
 
+  // Cleanup object URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl);
+      }
+    };
+  }, [videoUrl]);
+
   // Check for API key on initial load
   useEffect(() => {
     const checkApiKey = async () => {
@@ -149,6 +158,10 @@ const App: React.FC = () => {
   };
 
   const handleNewVideo = useCallback(() => {
+    // Cleanup object URL to prevent memory leak
+    if (videoUrl) {
+      URL.revokeObjectURL(videoUrl);
+    }
     setAppState(AppState.IDLE);
     setVideoUrl(null);
     setErrorMessage(null);
@@ -156,7 +169,7 @@ const App: React.FC = () => {
     setLastVideoObject(null);
     setLastVideoBlob(null);
     setInitialFormValues(null); // Clear the form state
-  }, []);
+  }, [videoUrl]);
 
   const handleTryAgainFromError = useCallback(() => {
     if (lastConfig) {

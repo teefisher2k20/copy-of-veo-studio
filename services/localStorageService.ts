@@ -113,16 +113,16 @@ class LocalStorageService {
           return;
         }
 
-        const getBlob = blobStore.get(id);
-        getBlob.onsuccess = () => {
-          const blobRecord = getBlob.result;
+        const getBlobRequest = blobStore.get(id);
+        getBlobRequest.onsuccess = () => {
+          const blobRecord = getBlobRequest.result;
           if (!blobRecord) {
             resolve(null);
             return;
           }
           resolve({ blob: blobRecord.blob, metadata });
         };
-        getBlob.onerror = () => reject(getBlob.error);
+        getBlobRequest.onerror = () => reject(getBlobRequest.error);
       };
 
       getMetadata.onerror = () => reject(getMetadata.error);
