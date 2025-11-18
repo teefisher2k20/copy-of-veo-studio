@@ -1,54 +1,70 @@
-## Veo Studio – AI Agent Working Notes
 
-- Purpose: Single-page React app (Vite + TS) that calls Google GenAI Veo video generation. No server; all calls are from the browser.
-- Entrypoints: `index.tsx` mounts `App.tsx`. UI components in `components/`. API wrapper in `services/geminiService.ts`. Shared types in `types.ts`.
+# Copilot Instructions for Veo Studio
 
-### Architecture & Data Flow
-- UI form: `components/PromptForm.tsx` builds `GenerateVideoParams` with mode-specific media inputs.
-- Generate: `App.handleGenerate()` → `services/geminiService.generateVideo(params)`.
-- API: `@google/genai` → `models.generateVideos(payload)`; poll with `operations.getVideosOperation()` until `done`.
-- Result: Fetch the generated video URI, create `Blob`/`objectUrl`, then render via `components/VideoResult.tsx`.
-- Extend flow: After success, `onExtend` passes the prior `Video` object back into params (requires 720p).
+## Project Overview
 
-### Modes, Constraints, and Payload Rules
-- Modes (`types.ts: GenerationMode`): TEXT_TO_VIDEO, FRAMES_TO_VIDEO, REFERENCES_TO_VIDEO, EXTEND_VIDEO.
-- Resolution: 1080p videos can’t be extended; EXTEND requires 720p (`App.tsx`, `PromptForm.tsx`).
-- Aspect Ratio: Not used for EXTEND; fixed to 16:9 for References mode.
-- References: At least one reference image + a prompt; optional style image (currently commented in UI).
-- Frames: Start frame required; optional end frame or enable loop (uses start as end).
+- Veo Studio is a single-page React app (Vite + TypeScript) for generating videos using Google GenAI's Veo model. All API calls are made from the browser; there is no backend server.
 
-### API & Auth Integration
-- Library: `@google/genai` (see `services/geminiService.ts`).
-- Key handling: Prefer Google AI Studio embedding via `window.aistudio` (see `App.tsx`).
-  - On load, `window.aistudio.hasSelectedApiKey()` gates usage; a dialog prompts selection when no key and no `VITE_API_KEY`.
-  - Service uses `import.meta.env.VITE_API_KEY` for both API client and final asset fetch (`...&key=VITE_API_KEY`) when not using AI Studio selection.
-- Local/dev: Set `VITE_API_KEY` in `.env.local` for `vite` dev/preview/build.
+## Architecture & Data Flow
 
-### Project Conventions
-- Types-first: All cross-component request/response shapes live in `types.ts`.
-- Single service boundary: Only `services/geminiService.ts` touches the GenAI SDK. Keep UI pure; pass `GenerateVideoParams` down.
-- Media handling: File inputs are converted to base64 by splitting `data:` URLs (see `PromptForm.tsx:fileToBase64`).
-- Error UX: Centralized in `App.tsx` with friendly messages for “model not found”, invalid key, or permission issues.
-- Logging: Verbose `console.log` traces the payload, polling, and fetch URL for easier debugging.
+- Entrypoint: `index.tsx` mounts `App.tsx`.
+- UI Components: Located in `components/` (e.g., `PromptForm.tsx`, `VideoResult.tsx`).
+- Service Layer: All GenAI SDK calls are centralized in `services/geminiService.ts`.
+- Types: Shared request/response shapes and enums are defined in `types.ts`.
+-- Data Flow:
+  - User input via `PromptForm.tsx` → `App.tsx:handleGenerate()` → `services/geminiService.generateVideo(params)` → GenAI API.
+  - Video results are rendered in `VideoResult.tsx`.
 
-### Build, Run, and Environment
-- Commands: `npm install` → `npm run dev` (Vite) → `npm run build` → `npm run preview`.
-- Required env: API key via AI Studio selection or `VITE_API_KEY` at build time.
-- Files to check: `.env.local`, `README.md` for quick start; `metadata.json` for AI Studio app metadata.
+## Key Patterns & Conventions
 
-### Extending the App (Examples)
-- New generation variants: Add enum/fields in `types.ts`, extend `PromptForm` UI/validation, then map into the payload in `geminiService.generateVideo`.
-- New UI flows (e.g., presets): Keep param assembly in UI; do not couple UI state to SDK types directly—convert to `GenerateVideoParams`.
-- Auth alternatives: If removing `window.aistudio`, replace API key flow and update both client init and final fetch query param.
+- Types-First: All cross-component data structures are defined in `types.ts`. Always use these types for request/response payloads.
+- Single Service Boundary: Only `services/geminiService.ts` interacts with the GenAI SDK. UI components should remain pure and only pass/receive typed params.
+- Media Handling: File inputs are converted to base64 strings using `PromptForm.tsx:fileToBase64`.
+- Error Handling: Centralized in `App.tsx` with user-friendly messages for model/key issues.
+- Logging: Use `console.log` for tracing payloads, polling, and fetch URLs.
 
-### Gotchas & Troubleshooting
-- “Requested entity was not found.” often indicates bad model name or a key without access; check `VeoModel` values and key permissions.
-- 1080p cannot be extended—UI disables Extend if last result wasn’t 720p.
-- References mode forces model to `VEO` and 16:9, and requires at least one image and a prompt.
-- Final video fetch appends `&key=...`; ensure the same key used to initiate the operation is available in the browser.
+## Developer Workflows
 
-### Key Files
-- `App.tsx` – state machine and flows (idle/loading/success/error, extend/retry).
-- `components/PromptForm.tsx` – inputs, media handling, validation, and mode rules.
-- `services/geminiService.ts` – SDK calls, polling, and result fetch.
-- `types.ts` – canonical enums and request shapes used across the app.
+- Local Development:
+  - Install dependencies: `npm install`
+  - Start dev server: `npm run dev`
+  - Build: `npm run build`
+  - Preview: `npm run preview`
+  - Set API key in `.env.local` as `VITE_API_KEY` (or use Google AI Studio selection).
+- CI/CD: Automated checks run on push/PR via GitHub Actions (`.github/workflows/ci.yml`):
+  - Markdown lint (`npm run lint:md`)
+  - ESLint (if config present)
+  - Build
+  - Tests (if `tests/` exists)
+- Pre-push Hook: Husky runs lint, build, and tests before pushing (`.husky/pre-push`).
+
+## Modes & Constraints
+
+- Generation Modes: Defined in `types.ts:GenerationMode` (TEXT_TO_VIDEO, FRAMES_TO_VIDEO, REFERENCES_TO_VIDEO, EXTEND_VIDEO).
+- Resolution Rules: 1080p videos cannot be extended; EXTEND requires 720p.
+- References Mode: Requires at least one reference image and a prompt; aspect ratio fixed to 16:9.
+- Frames Mode: Start frame required; end frame optional or use loop.
+
+## Integration Points
+
+- API Key: Prefer Google AI Studio embedding (`window.aistudio`); fallback to `VITE_API_KEY` in `.env.local`.
+- External SDK: Uses `@google/genai` for all GenAI interactions.
+- Metadata: App metadata in `metadata.json`.
+
+## Extending the App
+
+- To add new generation variants, update enums/types in `types.ts`, extend UI in `PromptForm.tsx`, and map new fields in `geminiService.ts`.
+- For new UI flows (e.g., presets), keep param assembly in UI and convert to `GenerateVideoParams`.
+
+## Troubleshooting
+
+- "Requested entity was not found." usually means a bad model name or invalid API key.
+- 1080p cannot be extended; UI disables Extend if last result wasn’t 720p.
+- Final video fetch appends `&key=...`; ensure the same key is used throughout.
+
+## Key Files
+
+- `App.tsx` – state machine, error handling, and main flows.
+- `components/PromptForm.tsx` – input UI, media handling, validation.
+- `services/geminiService.ts` – GenAI SDK calls, polling, result fetch.
+- `types.ts` – canonical enums and request shapes.
