@@ -19,8 +19,8 @@
   font-size: 2.5rem;
   font-weight: 700;
   background: linear-gradient(to right, #818cf8, #a78bfa, #ec4899);
-  background-clip: text;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
 }
@@ -443,6 +443,7 @@
   cursor: pointer;
   font-weight: 600;
   list-style: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GoogleGenerativeAI } from '@google/genai';
+// import { GoogleGenerativeAI } from '@google/genai'; // Removed: No exported member
 import type { AiTool } from '../types/aiTools';
 
 interface AiToolExecutorProps {
@@ -30,15 +30,11 @@ export default function AiToolExecutor({ tool, apiKey, onBack }: AiToolExecutorP
     setResult('');
 
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-
-      // Replace {USER_INPUT} placeholder with actual user input
-      const finalPrompt = tool.systemPrompt.replace('{USER_INPUT}', userInput);
-
-      const response = await model.generateContent(finalPrompt);
-      const text = response.response.text();
-      setResult(text);
+      // TODO: Integrate Gemini API here. The GoogleGenerativeAI class is not available in @google/genai.
+      // Example:
+      // const response = await fetchGeminiContent(apiKey, tool.systemPrompt, userInput);
+      // setResult(response);
+      throw new Error('Gemini API integration not implemented.');
     } catch (err) {
       console.error('Generation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate content. Please try again.');
