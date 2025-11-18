@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npm run lint:md
+if [ -f .eslintrc.js ] || [ -f .eslintrc.json ]; then
+  npx eslint .
+fi
+npm run build
+if [ -d tests ]; then
+  npm test
+fi

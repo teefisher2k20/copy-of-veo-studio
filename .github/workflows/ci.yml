@@ -1,0 +1,38 @@
+name: CI Lint, Test, Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint Markdown
+        run: npm run lint:md
+      - name: Lint JS/TS
+        run: |
+          if [ -f .eslintrc.js ] || [ -f .eslintrc.json ]; then
+            npx eslint .
+          else
+            echo 'No ESLint config found, skipping JS/TS lint.'
+          fi
+      - name: Build
+        run: npm run build
+      - name: Run Tests
+        run: |
+          if [ -d tests ]; then
+            npm test
+          else
+            echo 'No tests directory found, skipping tests.'
+          fi
